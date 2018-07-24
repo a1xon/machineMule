@@ -1,17 +1,17 @@
 const delay = require('delay');
 
-class Cucumberslicer {
+class Stirrer {
     constructor (GPIO) {
         this.GPIO = GPIO;
     }
 
     async duty(drink) {
-        if (drink !== undefined && drink.Cucumber >= 1) {
+        if (drink !== undefined && drink.Stirred) {
             await delay(2500);
-            return 'cucumber sliced'
+            return 'stirred'
         }
         return false
     }
 }
 
-exports.Cucumberslicer = Cucumberslicer;
+exports.Stirrer = Stirrer;

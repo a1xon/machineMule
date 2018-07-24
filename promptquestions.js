@@ -16,7 +16,7 @@ const Questions = [{
     message: 'How many drinks do you want?',
     initial: 1,
     style: 'default',
-    min: 1,
+    min: 0,
     max: 5
   }
 ];

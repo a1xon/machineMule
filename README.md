@@ -1,2 +1,2 @@
 # machineMule
-Controll Software for the famous machineMule
+Control Software for the famous Machine Mule

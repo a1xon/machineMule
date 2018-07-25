@@ -1,7 +1,7 @@
 //Settings
 const WiringSettings = {
     TablePIN : 12,
-    TableStepperSensor: 13,
+    TableStepperSensorPIN: 13,
     CupDispenserPIN: 11,
     CucumberSlicerPIN: 11,
     LiquorDispenser1PIN: 10,

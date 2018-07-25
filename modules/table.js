@@ -6,7 +6,7 @@ class Table {
     }
 
     async spin(rotations = 1) {
-        await delay(rotations* 500);
+        await delay(rotations* 2000);
         return true;
     }
 }

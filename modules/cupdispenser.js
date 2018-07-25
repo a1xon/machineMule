@@ -1,7 +1,11 @@
 const delay = require('delay');
+const {Component} = require('./component.js');
 
-class Cupdispenser {
-    constructor (GPIO) {
+console.log(Component);
+
+class Cupdispenser extends Component {
+    constructor (statusLEDS, GPIO) {
+        super(statusLEDS);
         this.GPIO = GPIO;
     }
 

@@ -2,6 +2,9 @@ const five = require('johnny-five');
 const prompts = require('prompts');
 const delay = require('delay');
 
+const statusLedsPerModule = 8;
+let assignedLeds = 0;
+
 const {
     Drink
 } = require('./modules/drink');
@@ -63,6 +66,12 @@ board.on("ready", async function() {
     }
 
   });
+
+const assignLed = () => {
+  let arr = Array.from({length: statusLedsPerModule}, (x,i) => new A(i + assignedLeds));
+  assignedLeds += statusLedsPerModule;
+  return arr;
+}
 
 ///Here we can alter the machine layout by just switching the order of the constructor functions
 const machineComponents = [

@@ -71,7 +71,7 @@ board.on("ready", async function () {
         const assignLed = () => {
             let arr = Array.from({
                 length: WiringSettings.statusLedsPerModule
-            }, (x, i) => strip.pixel(WiringSettings + i));
+            }, (x, i) => strip.pixel(assignedLeds + i));
             assignedLeds += WiringSettings.statusLedsPerModule;
             return arr;
         }
@@ -83,7 +83,6 @@ board.on("ready", async function () {
         ///
         /// ---------------------------------------------------------------------------------------------
         ///
-
 
         const machineComponents = [
             new Cupdispenser(assignLed()),
@@ -131,7 +130,6 @@ board.on("ready", async function () {
 
             if (drinksActive.length > 0) {
                 runMachineCycle();
-                return
             } else {
                 machineIsActive = false;
             }

@@ -20,6 +20,7 @@
     "delay": "^3.0.0",
     "johnny-five": "^0.15.0",
     "moment": "^2.22.2",
+    "node-pixel": "^0.10.0",
     "prompts": "^0.1.12"
   }
 }

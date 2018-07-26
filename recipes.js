@@ -4,6 +4,7 @@ const Recipes = {
         GingerBeer: 120,
         Vodka: 30,
         Cucumber: 6,
+        DryIce: 10,
         Stirred: true,
         Cup: 1,
     },
@@ -12,6 +13,7 @@ const Recipes = {
         GingerBeer: 120,
         Gin: 30,
         Cucumber: 6,
+        DryIce: 10,
         Stirred: true,
         Cup: 1
     },

@@ -17,7 +17,7 @@ const Questions = [{
     initial: 1,
     style: 'default',
     min: 0,
-    max: 5
+    max: 10
   }
 ];
 

@@ -1,5 +1,6 @@
 //Settings
 const WiringSettings = {
+    NumberOfComponents: 6,
     TablePIN : 12,
     TableStepperSensorPIN: 13,
     CupDispenserPIN: 11,

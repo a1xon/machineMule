@@ -1,9 +1,13 @@
+const fs = require('fs');
+const { promisify } = require('util')
+const appendFile = promisify(fs.appendFile)
+
 const five = require('johnny-five');
 const pixel = require("node-pixel");
 
 const prompts = require('prompts');
 const delay = require('delay');
-
+const moment = require('moment');
 
 
 const {
@@ -27,6 +31,9 @@ const {
     Cupdispenser
 } = require('./modules/cupdispenser');
 const {
+    Dryicedispenser
+} = require('./modules/dryicedispenser');
+const {
     Cucumberslicer
 } = require('./modules/cucumberslicer');
 const {
@@ -42,6 +49,9 @@ const {
     WiringSettings
 } = require('./settings')
 
+///
+/// Start of the program
+
 
 let machineIsActive = false;
 let drinksOrders = [];
@@ -52,7 +62,6 @@ const table = new Table();
 
 const board = new five.Board();
 
-
 board.on("ready", async function () {
 
     console.log("Board ready, lets add light");
@@ -61,19 +70,20 @@ board.on("ready", async function () {
         color_order: pixel.COLOR_ORDER.GRB,
         board: this,
         controller: "I2CBACKPACK",
-        strips: [WiringSettings.statusLedsPerModule],
+        strips: [WiringSettings.statusLedsPerModule * WiringSettings.NumberOfComponents],
     });
 
     strip.on("ready", function () {
 
-        let assignedLeds = 0;
+        let assignedStatusLEDs = 0;
 
-        const assignLed = () => {
+        const assignStatusLEDs = () => {
             let arr = Array.from({
                 length: WiringSettings.statusLedsPerModule
-            }, (x, i) => strip.pixel(assignedLeds + i));
-            assignedLeds += WiringSettings.statusLedsPerModule;
+            }, (x, i) => strip.pixel(assignedStatusLEDs + i));
+            assignedStatusLEDs += WiringSettings.statusLedsPerModule;
             return arr;
+
         }
 
         ///
@@ -85,11 +95,12 @@ board.on("ready", async function () {
         ///
 
         const machineComponents = [
-            new Cupdispenser(assignLed()),
-            new Cucumberslicer(assignLed()),
-            new Liquordispenser(assignLed()),
-            new Gingerbeerdispenser(assignLed()),
-            new Stirrer(assignLed())
+            new Cupdispenser(assignStatusLEDs(),strip),
+            new Cucumberslicer(assignStatusLEDs(),strip),
+            new Dryicedispenser(assignStatusLEDs(),strip),
+            new Liquordispenser(assignStatusLEDs(),strip),
+            new Gingerbeerdispenser(assignStatusLEDs(),strip),
+            new Stirrer(assignStatusLEDs(),strip)
         ];
 
         ///
@@ -97,34 +108,42 @@ board.on("ready", async function () {
         ///
 
         const runMachineCycle = async () => {
-            ///Add new mule to active list if there are orders left
+            /// Add new mule to active list if there are orders left
+
             machineIsActive = true;
             if (drinksOrders.length) {
                 drinksActive.push(drinksOrders.shift());
             }
 
-            ///Update position of the mules
+            /// Update position of the mules
+
             for (let drink of drinksActive) {
                 drink.position = drink.position >= 0 ? (drink.position + 1) : 0;
             }
 
-            //Give components their duty
-            //Loading up duties array with promises from components
-            //Giving each component the drink that sits in his place
+            // Give components their duty and let them decide what to with the drink
+            // Loading up duties array with promises from components
+            // Giving each component the drink that sits in his place
+
             let duties = [];
-            for (let i = 0; i < machineComponents.length; i++) {
-                duties.push(machineComponents[i].duty(drinksActive.find(drink => drink.position === i)))
+            for (let [componentPosition, component] of machineComponents.entries()) {
+                duties.push(component.duty(drinksActive.find(drink => drink.position === componentPosition)))
             }
-            //Wait for all components to complete
+
+            // Wait for all components to complete
+
             let result = await Promise.all(duties);
             console.log(result);
 
-            ///Spin table
+            /// Spin table
+
             await table.spin();
             console.log('spinnend');
 
-            ///transfer completed drinks to log
+            /// Transfer completed drinks to log
+
             if (drinksActive.some(drink => drink.position >= machineComponents.length - 1)) {
+                appendFile('./drinksLog/' + moment().format('YYYYMMDD') + '.prejson' , JSON.stringify(drinksActive[0]) + ',\n');
                 drinksLog.push(drinksActive.shift());
             }
 

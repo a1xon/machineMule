@@ -1,7 +1,7 @@
 class Component {
-    constructor(statusLEDS = [], stripe = {}) {
+    constructor(statusLEDS = [], strip = {}) {
         this.statusLEDS = statusLEDS;
-        this.stripe = stripe
+        this.strip = strip
     }
 
     async showStatus(busy) {
@@ -9,7 +9,7 @@ class Component {
             for (let LED of this.statusLEDS) {
                 LED.color(busy ? '#FFFFFF' : '#0000FF')
             }
-            this.stripe.show();
+            this.strip.show();
         }
     }
 }

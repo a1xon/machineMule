@@ -1,10 +1,26 @@
+const fs = require('fs');
+const { promisify } = require('util')
+const appendFile = promisify(fs.appendFile)
+
 const moment = require('moment');
 
 class Drink {
     constructor (recipe) {
         Object.assign(this, recipe);
         this.position = -1;
-        this.date = moment();
+        this.paid = false;
+        this.free = false;
+        this.timePaid = '';
+        this.timeOrdered = moment();
+        this.timeServed = '';
+    }
+
+    async setAsPaid() {
+        this.paid = moment();
+    }
+    async setAsServed(){
+        this.timeServed = moment();
+        appendFile('./drinksLog/' + moment().format('YYYYMMDD') + '.prejson' , JSON.stringify(this) + ',\n');
     }
 }
 

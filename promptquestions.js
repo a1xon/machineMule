@@ -4,9 +4,12 @@ const Questions = [{
     message: 'What do you want to drink?',
     choices: [
         { title: 'Moscow Mule', value: 'MoscowMule' },
-        { title: 'Munich Mule', value: 'MunichMule' },
         { title: 'Vodka Shot', value: 'VodkaShot' },
-        { title: 'Gin Shot', value: 'GinShot' },
+        { title: '1 € paid', value: 1},
+        { title: '2 € paid', value: 2},
+        { title: '5 € paid', value: 5},
+        { title: '10 € paid', value: 10},
+        { title: 'FREE DRINKS', value: 0}
     ],
     initial: 0
 },

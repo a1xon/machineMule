@@ -1,7 +1,3 @@
-const fs = require('fs');
-const { promisify } = require('util')
-const appendFile = promisify(fs.appendFile)
-
 const five = require('johnny-five');
 const pixel = require("node-pixel");
 
@@ -73,9 +69,10 @@ board.on("ready", async function () {
         strips: [WiringSettings.statusLedsPerModule * WiringSettings.NumberOfComponents],
     });
 
-    strip.on("ready", function () {
+    strip.on("ready", async function () {
 
         let assignedStatusLEDs = 0;
+        let userCredit = 0;
 
         const assignStatusLEDs = () => {
             let arr = Array.from({
@@ -95,25 +92,52 @@ board.on("ready", async function () {
         ///
 
         const machineComponents = [
-            new Cupdispenser(assignStatusLEDs(),strip),
-            new Cucumberslicer(assignStatusLEDs(),strip),
-            new Dryicedispenser(assignStatusLEDs(),strip),
-            new Liquordispenser(assignStatusLEDs(),strip),
-            new Gingerbeerdispenser(assignStatusLEDs(),strip),
-            new Stirrer(assignStatusLEDs(),strip)
+            new Cupdispenser(assignStatusLEDs(), strip),
+            new Cucumberslicer(assignStatusLEDs(), strip),
+            new Dryicedispenser(assignStatusLEDs(), strip),
+            new Liquordispenser(assignStatusLEDs(), strip),
+            new Gingerbeerdispenser(assignStatusLEDs(), strip),
+            new Stirrer(assignStatusLEDs(), strip)
         ];
 
         ///
         /// -------------------------------------
         ///
 
+        const coinInserted = async coinValue => {
+            let paidDrinkIndex = -1;
+            let creditSufficient = false;
+
+            userCredit += coinValue;
+            if (coinValue === 0) {
+                drinksOrders.forEach(drink => drink.setAsPaid());
+                creditSufficient = true;
+            } else {
+                do {
+                    paidDrinkIndex = drinksOrders.findIndex(drink => drink.price <= userCredit);
+                    if (paidDrinkIndex > -1) {
+                        userCredit -= drinksOrders[paidDrinkIndex].price;
+                        drinksOrders[paidDrinkIndex].setAsPaid();
+                        creditSufficient = true;
+                    }
+                } while (paidDrinkIndex > -1);
+            }
+
+            /// run machine 
+            if (!machineIsActive && creditSufficient) {
+                runMachineCycle();
+            }
+        }
+
         const runMachineCycle = async () => {
-            /// Add new mule to active list if there are orders left
+
 
             machineIsActive = true;
-            if (drinksOrders.length) {
-                drinksActive.push(drinksOrders.shift());
-            }
+
+            /// Add new mule to active list if there are paid orders left
+            let paidDrinkIndex = -1;
+            paidDrinkIndex = drinksOrders.findIndex(drink => drink.paid === true);
+            drinksActive.push(drinksOrders.splice(paidDrinkIndex, 1));
 
             /// Update position of the mules
 
@@ -143,7 +167,7 @@ board.on("ready", async function () {
             /// Transfer completed drinks to log
 
             if (drinksActive.some(drink => drink.position >= machineComponents.length - 1)) {
-                appendFile('./drinksLog/' + moment().format('YYYYMMDD') + '.prejson' , JSON.stringify(drinksActive[0]) + ',\n');
+                drinksActive[0].setAsServed();
                 drinksLog.push(drinksActive.shift());
             }
 
@@ -157,11 +181,13 @@ board.on("ready", async function () {
         const promptUser = async () => {
             let response = await prompts(Questions);
             console.log(response);
-            for (let i = 0; i < response.amount; i++) {
-                drinksOrders.push(new Drink(Recipes[response.drink]));
-            }
-            if (!machineIsActive) {
-                runMachineCycle();
+            if (Number.isInteger(response.drink)) {
+                /// Add funds to user credit
+                coinInserted(response.drink);
+            } else {
+                for (let i = 0; i < response.amount; i++) {
+                    drinksOrders.push(new Drink(Recipes[response.drink]));
+                }
             }
             promptUser();
         }

@@ -2,9 +2,6 @@ const five = require('johnny-five');
 const pixel = require("node-pixel");
 
 const prompts = require('prompts');
-const delay = require('delay');
-const moment = require('moment');
-
 
 const {
     Drink
@@ -80,7 +77,6 @@ board.on("ready", async function () {
             }, (x, i) => strip.pixel(assignedStatusLEDs + i));
             assignedStatusLEDs += WiringSettings.statusLedsPerModule;
             return arr;
-
         }
 
         ///
@@ -110,14 +106,14 @@ board.on("ready", async function () {
 
             userCredit += coinValue;
             if (coinValue === 0) {
-                drinksOrders.forEach(drink => drink.setAsPaid());
+                drinksOrders.forEach(drink => drink.setAsPaid(false));
                 creditSufficient = true;
             } else {
                 do {
                     paidDrinkIndex = drinksOrders.findIndex(drink => drink.price <= userCredit);
                     if (paidDrinkIndex > -1) {
                         userCredit -= drinksOrders[paidDrinkIndex].price;
-                        drinksOrders[paidDrinkIndex].setAsPaid();
+                        drinksOrders[paidDrinkIndex].setAsPaid(true);
                         creditSufficient = true;
                     }
                 } while (paidDrinkIndex > -1);
@@ -130,7 +126,6 @@ board.on("ready", async function () {
         }
 
         const runMachineCycle = async () => {
-
 
             machineIsActive = true;
 
@@ -162,11 +157,10 @@ board.on("ready", async function () {
             /// Spin table
 
             await table.spin();
-            console.log('spinnend');
 
             /// Transfer completed drinks to log
 
-            if (drinksActive.some(drink => drink.position >= machineComponents.length - 1)) {
+            if (drinksActive[0].position >= machineComponents.length - 1) {
                 drinksActive[0].setAsServed();
                 drinksLog.push(drinksActive.shift());
             }

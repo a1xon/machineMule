@@ -15,9 +15,11 @@ class Drink {
         this.timeServed = '';
     }
 
-    async setAsPaid() {
+    async setAsPaid(actuallyPaid) {
         this.paid = moment();
+        this.free = !actuallyPaid;
     }
+    
     async setAsServed(){
         this.timeServed = moment();
         appendFile('./drinksLog/' + moment().format('YYYYMMDD') + '.prejson' , JSON.stringify(this) + ',\n');

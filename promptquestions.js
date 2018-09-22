@@ -5,8 +5,6 @@ const Questions = [{
     choices: [
         { title: 'Moscow Mule', value: 'MoscowMule' },
         { title: 'Vodka Shot', value: 'VodkaShot' },
-        { title: '1 € paid', value: 1},
-        { title: '2 € paid', value: 2},
         { title: '5 € paid', value: 5},
         { title: '10 € paid', value: 10},
         { title: 'FREE DRINKS', value: 0}

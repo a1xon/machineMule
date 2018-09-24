@@ -51,8 +51,6 @@ let drinksOrders = [];
 let drinksActive = [];
 let drinksLog = [];
 
-const table = new Table();
-
 const board = new five.Board();
 
 board.on("ready", async function () {
@@ -86,6 +84,8 @@ board.on("ready", async function () {
         ///
         /// ---------------------------------------------------------------------------------------------
         ///
+
+        const table = new Table(five);
 
         const machineComponents = [
             new Cupdispenser(assignStatusLEDs(), strip),
